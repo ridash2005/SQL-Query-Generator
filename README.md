@@ -1,4 +1,4 @@
-# 🧠 Text-to-SQL
+# 🧠 QueryMind
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -21,8 +21,8 @@
 ## 📚 Table of Contents
 
 1. [🤔 What Does This Project Do?](#1-what-does-this-project-do)
-2. [😬 The Problem With "Typical" Text-to-SQL](#2-the-problem-with-typical-text-to-sql)
-3. [🛠️ How This Project Solves It](#3-how-this-project-solves-it)
+2. [😬 The Problem With "Typical" NL-to-SQL](#2-the-problem-with-typical-nl-to-sql)
+3. [🛠️ How QueryMind Solves It](#3-how-querymind-solves-it)
 4. [🏗️ High-Level Architecture](#4-high-level-architecture)
 5. [🔄 Step-by-Step: How a Query Works](#5-step-by-step-how-a-query-works)
 6. [✅ What It Can (and Cannot) Do](#6-what-it-can-and-cannot-do)
@@ -51,9 +51,9 @@ The underlying database is a **star-schema** data warehouse built on the [Olist 
 
 ---
 
-## 2. 😬 The Problem With "Typical" Text-to-SQL
+## 2. 😬 The Problem With "Typical" NL-to-SQL
 
-When someone first tries to build a text-to-SQL system, the obvious approach is usually:
+When someone first tries to build a natural-language-to-SQL system, the obvious approach is usually:
 
 > *"I'll just paste the entire database schema into the LLM prompt and ask it to write a query."*
 
@@ -67,11 +67,11 @@ This works fine for toy databases with 3–4 tables. In the real world, it break
 | 👻 **Hallucinated SQL** | Without enough context, the LLM invents column names or table relationships that don't exist, producing queries that fail at runtime. |
 | 🚨 **No safety guardrails** | A naive implementation has no check to stop the LLM from generating `DELETE` or `DROP TABLE` statements if the user's question is phrased ambiguously. |
 
-**This project solves all of these problems. 🎯**
+**QueryMind solves all of these problems. 🎯**
 
 ---
 
-## 3. 🛠️ How This Project Solves It
+## 3. 🛠️ How QueryMind Solves It
 
 Instead of dumping the whole schema into the prompt, we use three key techniques:
 
@@ -251,16 +251,22 @@ SQL-Query-Generator/
 │   ├── database.py             # Engine + session factory
 │   └── schema.py               # Table definitions (star schema + query_log)
 │
-├── frontend/                   # React + TypeScript UI
+├── frontend/                   # React + TypeScript UI (Vite)
 │   └── src/
-│       ├── App.tsx             # Root component
-│       ├── api.ts              # HTTP client
+│       ├── App.tsx             # Root layout — composes all sections
+│       ├── api.ts              # HTTP client (Axios)
 │       └── components/
-│           ├── ChatWindow.tsx       # Question input box
-│           ├── SqlDisplay.tsx       # Syntax-highlighted SQL output
-│           ├── ResultsTable.tsx     # Pageable results grid
-│           ├── SchemaExplorer.tsx   # Browse available tables/columns
-│           └── ApprovalModal.tsx    # HITL confirmation dialog
+│           ├── Navbar.tsx             # Fixed nav with blur, smooth-scroll links
+│           ├── HeroSection.tsx        # Hero with animated terminal demo
+│           ├── FeaturesSection.tsx     # 4-technique showcase cards
+│           ├── ArchitectureSection.tsx # Pipeline visualization
+│           ├── PlaygroundSection.tsx   # Interactive query playground
+│           ├── ChatWindow.tsx         # Question input + message history
+│           ├── SqlDisplay.tsx         # Syntax-highlighted SQL output
+│           ├── ResultsTable.tsx       # Sortable, pageable results grid
+│           ├── SchemaExplorer.tsx     # Browse available tables/columns
+│           ├── ApprovalModal.tsx      # HITL confirmation dialog
+│           └── Footer.tsx            # Tech stack, links, copyright
 │
 ├── data/
 │   ├── raw/                    # Raw Olist CSV files

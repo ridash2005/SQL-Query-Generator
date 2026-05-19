@@ -2,15 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import { postQuery, type QueryResponse } from '../api'
 import SqlDisplay from './SqlDisplay'
 import ResultsTable from './ResultsTable'
-import type { Message } from '../App'
+import type { Message } from './PlaygroundSection'
 
 interface Props {
   messages: Message[]
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   onAnswer: (response: QueryResponse) => void
+  injectedQuery?: string | null
+  onQueryConsumed?: () => void
 }
 
-export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
+export default function ChatWindow({ messages, setMessages, onAnswer, injectedQuery, onQueryConsumed }: Props) {
   const [question, setQuestion] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -18,6 +20,14 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Handle injected example queries
+  useEffect(() => {
+    if (injectedQuery) {
+      setQuestion(injectedQuery)
+      onQueryConsumed?.()
+    }
+  }, [injectedQuery, onQueryConsumed])
 
   const handleSubmit = async () => {
     const q = question.trim()
@@ -73,13 +83,38 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
             justifyContent: 'center',
             height: '100%',
             color: 'var(--text-secondary)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '13px',
-            gap: '8px',
+            gap: '12px',
           }}>
-            <div style={{ fontSize: '32px' }}>🔍</div>
-            <div>Ask a question about your Olist data</div>
-            <div style={{ fontSize: '11px', opacity: 0.6 }}>e.g. "What is the total revenue by product category?"</div>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '14px',
+              background: 'rgba(99, 102, 241, 0.08)',
+              border: '1px solid rgba(99, 102, 241, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              animation: 'float 3s ease-in-out infinite',
+            }}>🔍</div>
+            <div style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '16px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+            }}>
+              Ask a question about your data
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              opacity: 0.5,
+              textAlign: 'center',
+              maxWidth: '360px',
+              lineHeight: 1.5,
+            }}>
+              Try "What is the total revenue by product category?" or click an example above
+            </div>
           </div>
         )}
 
@@ -91,14 +126,15 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
                 justifyContent: 'flex-end',
               }}>
                 <div style={{
-                  background: 'var(--bg-tertiary)',
-                  border: '1px solid var(--accent-cyan)',
-                  borderRadius: '8px 8px 2px 8px',
-                  padding: '10px 14px',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  borderRadius: '12px 12px 2px 12px',
+                  padding: '10px 16px',
                   maxWidth: '70%',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '13px',
-                  color: 'var(--accent-cyan)',
+                  color: 'var(--accent-violet)',
+                  lineHeight: 1.5,
                 }}>
                   {msg.content as string}
                 </div>
@@ -136,13 +172,14 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
 
             {msg.type === 'error' && (
               <div style={{
-                background: 'rgba(255,85,85,0.1)',
-                border: '1px solid var(--accent-red)',
-                borderRadius: '6px',
+                background: 'rgba(255,85,85,0.08)',
+                border: '1px solid rgba(255,85,85,0.2)',
+                borderRadius: '8px',
                 padding: '10px 14px',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '12px',
                 color: 'var(--accent-red)',
+                lineHeight: 1.5,
               }}>
                 ⚠ {msg.content as string}
               </div>
@@ -154,12 +191,18 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '10px',
             color: 'var(--text-secondary)',
             fontFamily: 'var(--font-mono)',
             fontSize: '12px',
           }}>
-            <span style={{ animation: 'pulse 1.2s infinite' }}>⬤</span>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'var(--accent-violet)',
+              animation: 'pulse 1.2s infinite',
+            }} />
             <span>Generating SQL...</span>
           </div>
         )}
@@ -169,22 +212,23 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
       {/* Input area */}
       <div style={{
         borderTop: '1px solid var(--border-color)',
-        padding: '16px',
-        background: 'var(--bg-secondary)',
+        padding: '14px 16px',
+        background: 'rgba(8, 11, 18, 0.5)',
       }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
           <textarea
+            id="query-input"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about your data... (Enter to send, Shift+Enter for newline)"
+            placeholder="Ask a question about your data... (Enter to send)"
             disabled={loading}
             style={{
               flex: 1,
               background: 'var(--bg-tertiary)',
               border: '1px solid var(--border-color)',
-              borderRadius: '6px',
-              padding: '10px 12px',
+              borderRadius: '8px',
+              padding: '10px 14px',
               color: 'var(--text-primary)',
               fontFamily: 'var(--font-mono)',
               fontSize: '13px',
@@ -193,35 +237,35 @@ export default function ChatWindow({ messages, setMessages, onAnswer }: Props) {
               maxHeight: '120px',
               outline: 'none',
               lineHeight: 1.5,
+              transition: 'border-color 0.2s',
             }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
             rows={1}
           />
           <button
+            id="query-submit"
             onClick={handleSubmit}
             disabled={loading || !question.trim()}
             style={{
-              background: loading || !question.trim() ? 'var(--bg-tertiary)' : 'var(--accent-green)',
-              color: loading || !question.trim() ? 'var(--text-secondary)' : '#0d1117',
+              background: loading || !question.trim()
+                ? 'var(--bg-tertiary)'
+                : 'var(--gradient-brand)',
+              color: loading || !question.trim() ? 'var(--text-secondary)' : '#fff',
               border: 'none',
-              borderRadius: '6px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '10px 20px',
               fontWeight: 600,
               fontSize: '13px',
-              transition: 'all 0.15s',
+              transition: 'all 0.2s',
               whiteSpace: 'nowrap',
+              cursor: loading || !question.trim() ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? '...' : 'Run ↵'}
+            {loading ? '···' : 'Run ↵'}
           </button>
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-      `}</style>
     </div>
   )
 }
