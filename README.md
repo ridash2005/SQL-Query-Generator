@@ -1,5 +1,17 @@
 # 🧠 Text-to-SQL
 
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat&logo=vite&logoColor=white)](https://vite.dev/)
+[![LangChain](https://img.shields.io/badge/LangChain-0.3-1C3C3C?style=flat&logo=langchain&logoColor=white)](https://www.langchain.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?style=flat&logo=openai&logoColor=white)](https://platform.openai.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5-FF6F00?style=flat)](https://www.trychroma.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat)](https://www.sqlalchemy.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 💬 Ask a question in plain English. 🔍 Get back a SQL query and real results from the database. No SQL knowledge required.
 
 > **Audience:** No prior knowledge of LLMs or vector databases is assumed.
@@ -18,6 +30,7 @@
 8. [🗄️ Database Schema](#8-database-schema)
 9. [🚀 Quick Start](#9-quick-start)
 10. [⚙️ Environment Variables](#10-environment-variables)
+11. [📄 License](#11-license)
 
 ---
 
@@ -89,7 +102,7 @@ The prompt includes curated question→SQL example pairs (stored in [`agent/few_
 
 ### 🛡️ Technique 4: HITL Safety Guard
 
-Before any SQL is executed, a Human-In-The-Loop (HITL) guard scans for dangerous keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, etc.). If found, execution is blocked and the user must explicitly type `CONFIRM` in a modal before anything runs. Pure `SELECT` queries pass through automatically. 🔒
+Before any SQL is executed, a Human-In-The-Loop (HITL) guard scans for dangerous keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, etc.). If found, execution is blocked and the user must explicitly approve via a confirmation dialog before anything runs. Pure `SELECT` queries pass through automatically. 🔒
 
 ---
 
@@ -102,7 +115,7 @@ Before any SQL is executed, a Human-In-The-Loop (HITL) guard scans for dangerous
 │  │  ChatWindow  │  │  SqlDisplay  │  │   ResultsTable    │  │
 │  │ (ask a Q)    │  │ (show SQL)   │  │ (show rows)       │  │
 │  └──────┬───────┘  └──────────────┘  └───────────────────┘  │
-│         │ POST /query                                         │
+│         │ POST /api/query                                     │
 └─────────┼───────────────────────────────────────────────────┘
           │
 ┌─────────▼───────────────────────────────────────────────────┐
@@ -207,7 +220,7 @@ React renders the SQL in a syntax-highlighted box and the results as a pageable 
 
 ### ❌ Cannot Do
 
-- 🚫 Modify data (INSERT/UPDATE/DELETE) without explicit human approval via the confirmation modal.
+- 🚫 Modify data (INSERT/UPDATE/DELETE) without explicit human approval via the confirmation dialog.
 - 🔒 Query tables or columns outside the defined semantic schema.
 - 🌐 Answer questions about data that isn't in the Olist dataset (e.g., live stock prices).
 - 🎲 Guarantee 100% correct SQL for every possible question — LLM output is probabilistic. Always review the generated SQL before trusting results.
@@ -217,7 +230,7 @@ React renders the SQL in a syntax-highlighted box and the results as a pageable 
 ## 7. 📁 Project Structure
 
 ```
-text-to-sql/
+SQL-Query-Generator/
 │
 ├── agent/                      # Core AI pipeline
 │   ├── sql_chain.py            # Main LCEL pipeline: question → SQL → results
@@ -230,9 +243,9 @@ text-to-sql/
 ├── api/                        # FastAPI web server
 │   ├── main.py                 # App factory, CORS, error handling
 │   └── routes/
-│       ├── query.py            # POST /query — runs the full pipeline
-│       ├── schema.py           # GET /schema — returns table descriptions
-│       └── health.py           # GET /health — liveness check
+│       ├── query.py            # POST /api/query — runs the full pipeline
+│       ├── schema.py           # GET  /api/schema — returns table descriptions
+│       └── health.py           # GET  /api/health — liveness check
 │
 ├── model/                      # SQLAlchemy ORM models
 │   ├── database.py             # Engine + session factory
@@ -256,6 +269,7 @@ text-to-sql/
 ├── infra/                      # Deployment scripts (Linux/nginx/systemd)
 │
 ├── requirements.txt            # Python dependencies
+├── LICENSE                     # MIT License
 └── .env.example                # Copy to .env and fill in your keys
 ```
 
@@ -306,8 +320,8 @@ The database uses a **star schema** — a design pattern common in data warehous
 ### 1. Clone and install Python dependencies
 
 ```bash
-git clone https://github.com/nerdjerry/text-to-sql.git
-cd text-to-sql
+git clone https://github.com/ridash2005/SQL-Query-Generator.git
+cd SQL-Query-Generator
 pip install -r requirements.txt
 ```
 
@@ -363,3 +377,9 @@ Open [http://localhost:5173](http://localhost:5173) in your browser and start as
 | `EMBEDDING_MODEL` | `text-embedding-3-small` | OpenAI embedding model used for both indexing and retrieval. |
 | `LOG_LEVEL` | `INFO` | Python logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
 | `ALLOWED_ORIGINS` | `*` | Comma-separated CORS origins. Set to your domain in production. |
+
+---
+
+## 11. 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
