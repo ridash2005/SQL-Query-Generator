@@ -110,60 +110,60 @@ Before any SQL is executed, a Human-In-The-Loop (HITL) guard scans for dangerous
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Browser (React)                       │
+│                        Browser (React)                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌───────────────────┐  │
 │  │  ChatWindow  │  │  SqlDisplay  │  │   ResultsTable    │  │
 │  │ (ask a Q)    │  │ (show SQL)   │  │ (show rows)       │  │
 │  └──────┬───────┘  └──────────────┘  └───────────────────┘  │
-│         │ POST /api/query                                     │
+│         │ POST /api/query                                   │
 └─────────┼───────────────────────────────────────────────────┘
           │
 ┌─────────▼───────────────────────────────────────────────────┐
-│                    FastAPI Backend (Python)                   │
-│                                                              │
+│                    FastAPI Backend (Python)                 │
+│                                                             │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │                   sql_chain.py (LCEL pipeline)        │   │
-│  │                                                       │   │
-│  │  Question                                             │   │
-│  │     │                                                 │   │
-│  │     ▼                                                 │   │
+│  │                   sql_chain.py (LCEL pipeline)       │   │
+│  │                                                      │   │
+│  │  Question                                            │   │
+│  │     │                                                │   │
+│  │     ▼                                                │   │
 │  │  [1] retriever.py ──► ChromaDB (vector store)        │   │
-│  │     │   (embed question, find top-3 relevant tables)  │   │
-│  │     ▼                                                 │   │
-│  │  [2] Load few_shot_examples.yaml                      │   │
-│  │     │                                                 │   │
-│  │     ▼                                                 │   │
-│  │  [3] Build ChatPromptTemplate                         │   │
+│  │     │   (embed question, find top-3 relevant tables) │   │
+│  │     ▼                                                │   │
+│  │  [2] Load few_shot_examples.yaml                     │   │
+│  │     │                                                │   │
+│  │     ▼                                                │   │
+│  │  [3] Build ChatPromptTemplate                        │   │
 │  │     │   (schema + examples + question)               │   │
-│  │     ▼                                                 │   │
+│  │     ▼                                                │   │
 │  │  [4] GPT-4o (temperature=0) ◄── OpenAI API           │   │
 │  │     │   (generate SQL)                               │   │
-│  │     ▼                                                 │   │
-│  │  [5] hitl_guard.py                                    │   │
+│  │     ▼                                                │   │
+│  │  [5] hitl_guard.py                                   │   │
 │  │     │   (block writes, require human approval)       │   │
-│  │     ▼                                                 │   │
-│  │  [6] Execute SQL ──► SQLite / PostgreSQL              │   │
-│  │     │                                                 │   │
-│  │     ▼                                                 │   │
-│  │  [7] Log to query_log table                           │   │
-│  │     │                                                 │   │
-│  │     ▼                                                 │   │
-│  │  Return {sql, results, latency_ms}                    │   │
+│  │     ▼                                                │   │
+│  │  [6] Execute SQL ──► SQLite / PostgreSQL             │   │
+│  │     │                                                │   │
+│  │     ▼                                                │   │
+│  │  [7] Log to query_log table                          │   │
+│  │     │                                                │   │
+│  │     ▼                                                │   │
+│  │  Return {sql, results, latency_ms}                   │   │
 │  └──────────────────────────────────────────────────────┘   │
-└──────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────┘
           │
 ┌─────────▼────────────────────────────┐
-│         ChromaDB (vector store)       │
-│  Table descriptions stored as vectors │
-│  Persisted to ./chroma_store/         │
+│         ChromaDB (vector store)      │
+│  Table descriptions stored as vectors│
+│  Persisted to ./chroma_store/        │
 └──────────────────────────────────────┘
           │
 ┌─────────▼────────────────────────────┐
-│     SQLite (./data/olist.db)          │
-│  fact_orders, dim_users,              │
-│  dim_products, dim_sellers,           │
-│  dim_geography, dim_reviews,          │
-│  query_log                            │
+│     SQLite (./data/olist.db)         │
+│  fact_orders, dim_users,             │
+│  dim_products, dim_sellers,          │
+│  dim_geography, dim_reviews,         │
+│  query_log                           │
 └──────────────────────────────────────┘
 ```
 
